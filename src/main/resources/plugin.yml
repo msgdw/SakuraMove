@@ -2,6 +2,9 @@ name: SakuraMove
 main: com.entiv.${name}.Main
 version: ${version}
 api-version: 1.13
+softdepend:
+  - PlaceholderAPI
+  - ProtocolLib
 
 commands:
   SakuraMove:

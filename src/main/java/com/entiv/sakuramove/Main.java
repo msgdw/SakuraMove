@@ -1,7 +1,11 @@
 package com.entiv.sakuramove;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
 import com.entiv.sakuramove.action.DoubleJump;
 import com.entiv.sakuramove.action.Sprint;
+import com.entiv.sakuramove.listener.PacketJumpListener;
 import com.entiv.sakuramove.listener.PaperJumpListener;
 import com.entiv.sakuramove.listener.SpigotJumpListener;
 import com.entiv.sakuramove.listener.SprintListener;
@@ -32,13 +36,16 @@ public class Main extends JavaPlugin {
     private TaskManager taskManager;
     private Listener doubleJump;
 
+    private boolean hasProtocolLib;
+
     @Override
     public void onEnable() {
-
         plugin = this;
         staminaManager = new StaminaManager();
         taskManager = new TaskManager();
         taskManager.start(this);
+
+        hasProtocolLib = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib");
 
         String[] message = {
                 "§a樱花移动插件§e v" + getDescription().getVersion() + " §a已启用",
@@ -46,7 +53,9 @@ public class Main extends JavaPlugin {
         };
         getServer().getConsoleSender().sendMessage(message);
 
-        if (isPaperFork()) {
+        if (hasProtocolLib) {
+            doubleJump = new PacketJumpListener();
+        } else if (isPaperFork()) {
             doubleJump = new PaperJumpListener();
         } else {
             doubleJump = new SpigotJumpListener();
@@ -126,6 +135,14 @@ public class Main extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(doubleJump, this);
         }
 
+        if (hasProtocolLib) {
+            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+            protocolManager.removePacketListeners(this);
+
+            if (onDoubleJump && doubleJump instanceof PacketAdapter) {
+                protocolManager.addPacketListener((PacketAdapter) doubleJump);
+            }
+        }
     }
 
     private void registerPlaceholder() {
