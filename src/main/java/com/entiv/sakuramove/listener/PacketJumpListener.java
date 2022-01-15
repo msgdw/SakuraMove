@@ -28,7 +28,7 @@ public class PacketJumpListener extends PacketAdapter implements Listener {
     @Override
     public void onPacketSending(PacketEvent event) {
         // 如果服务器更新玩家 canFly 状态 强制改为true 让玩家以为自己能飞行
-        event.getPacket().getBooleans().write(3, true);
+        event.getPacket().getBooleans().write(2, true);
     }
 
     @Override
